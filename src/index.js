@@ -8,11 +8,11 @@
 
 'use strict';
 
-var object =       require('blear.utils/object');
-var string =       require('blear.utils/string');
-var typeis =       require('blear.utils/typeis');
-var number =       require('blear.utils/number');
-var fun =          require('blear.utils/function');
+var object =       require('blear.utils.object');
+var string =       require('blear.utils.string');
+var typeis =       require('blear.utils.typeis');
+var number =       require('blear.utils.number');
+var fun =          require('blear.utils.function');
 var selector =     require('blear.core.selector');
 var attribute =    require('blear.core.attribute');
 var layout =       require('blear.core.layout');
