@@ -1,6 +1,6 @@
 {
   "name": "blear.ui.window",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "窗口弹出框 UI",
   "scripts": {
     "live": "browser-sync start --config bs-config.js"
@@ -15,7 +15,7 @@
   "keywords": [
     "blear",
     "ui",
-    "actions",
+    "window",
     "cloudcome",
     "ydr.me"
   ],

@@ -3,7 +3,7 @@
 比如一个 window => dialog => alert
 
 ```
-<dkui-window/>
-    <dkui-dialog/>
-        <dkui-alert/>
+<blearui-window/>
+    <blearui-dialog/>
+        <blearui-alert/>
 ```
