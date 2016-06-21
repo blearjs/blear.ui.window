@@ -8,18 +8,19 @@
 
 'use strict';
 
-var object =       require('blear.utils.object');
-var string =       require('blear.utils.string');
-var typeis =       require('blear.utils.typeis');
-var number =       require('blear.utils.number');
-var fun =          require('blear.utils.function');
-var selector =     require('blear.core.selector');
-var attribute =    require('blear.core.attribute');
-var layout =       require('blear.core.layout');
+var object = require('blear.utils.object');
+var string = require('blear.utils.string');
+var typeis = require('blear.utils.typeis');
+var number = require('blear.utils.number');
+var fun = require('blear.utils.function');
+var time = require('blear.utils.time');
+var selector = require('blear.core.selector');
+var attribute = require('blear.core.attribute');
+var layout = require('blear.core.layout');
 var modification = require('blear.core.modification');
-var event =        require('blear.core.event');
-var UI =           require('blear.ui');
-var template =     require('./template.html', 'html');
+var event = require('blear.core.event');
+var UI = require('blear.ui');
+var template = require('./template.html', 'html');
 
 var uiIndex = 0;
 var uiClass = UI.UI_CLASS + '-window';
@@ -37,7 +38,17 @@ var WINDOW_STATE_RESIZING = 3;
 var WINDOW_STATE_CLOSING = 4;
 // 5 已经销毁
 var WINDOW_STATE_DESTROYED = 5;
+var defaultAnimation = function (to, done) {
+    attribute.style(this.getElement(), to);
+    done();
+};
 var defaults = {
+    /**
+     * 定位
+     * @type String
+     */
+    position: 'fixed',
+
     /**
      * 宽度
      * @type Number
@@ -108,17 +119,7 @@ var defaults = {
      * 关闭窗口的动画
      * @type Null|Function
      */
-    closeAnimation: null,
-
-    /**
-     * 默认动画
-     * @param to
-     * @param done
-     */
-    animation: function (to, done) {
-        attribute.style(this.getElement(), to);
-        done();
-    }
+    closeAnimation: null
 };
 var Window = UI.extend({
     className: 'Window',
@@ -127,9 +128,9 @@ var Window = UI.extend({
 
         Window.parent(the);
         options = the[_options] = object.assign(true, {}, defaults, options);
-        options.openAnimation = options.openAnimation || options.animation;
-        options.resizeAnimation = options.resizeAnimation || options.animation;
-        options.closeAnimation = options.closeAnimation || options.animation;
+        options.openAnimation = options.openAnimation || defaultAnimation;
+        options.resizeAnimation = options.resizeAnimation || defaultAnimation;
+        options.closeAnimation = options.closeAnimation || defaultAnimation;
 
         // init node
         var windowEl = modification.parse(template);
@@ -137,9 +138,13 @@ var Window = UI.extend({
         the[_focusEl] = selector.query('input', windowEl)[0];
         the[_containerEl] = selector.query('div', windowEl)[0];
         windowEl.id = uiClass + '-' + uiIndex++;
+        attribute.style(windowEl, 'position', options.position);
         the[_state] = WINDOW_STATE_HIDDEN;
         the[_windowEl] = windowEl;
         modification.insert(the[_windowEl]);
+        time.nextTick(function () {
+            the.emit('rendered', windowEl, options);
+        });
     },
 
 
