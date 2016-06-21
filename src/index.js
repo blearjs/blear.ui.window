@@ -180,42 +180,30 @@ var Window = UI.extend({
     open: function () {
         var the = this;
         var options = the[_options];
-
-        if (the[_state] !== WINDOW_STATE_HIDDEN) {
-            the.setZindex(UI.zIndex());
-            return the;
-        }
-
-        the[_state] = WINDOW_STATE_OPENING;
-        // 设置显示，便于计算尺寸
-        attribute.style(the[_windowEl], {
-            display: 'block',
-            visibility: 'hidden'
-        });
-
-        if (the[_shouldUpdate]) {
-            the[_shouldUpdate] = false;
-            the[_lastPosition] = null;
-        }
-
         var pos = {
             visibility: 'visible',
             zIndex: UI.zIndex()
         };
 
-        if (the.emit('willOpen', pos) === false) {
-            attribute.style(the[_windowEl], {
-                display: 'none',
-                visibility: 'visible'
-            });
-            return the;
-        }
-
         time.nextTick(function () {
-            the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
-            object.assign(pos, the[_lastPosition]);
+            if (the[_state] !== WINDOW_STATE_HIDDEN) {
+                the.setZindex(UI.zIndex());
+                return;
+            }
 
-            if (the.emit('beforeOpen', pos) === false) {
+            the[_state] = WINDOW_STATE_OPENING;
+            // 设置显示，便于计算尺寸
+            attribute.style(the[_windowEl], {
+                display: 'block',
+                visibility: 'hidden'
+            });
+
+            if (the[_shouldUpdate]) {
+                the[_shouldUpdate] = false;
+                the[_lastPosition] = null;
+            }
+
+            if (the.emit('willOpen', pos) === false) {
                 attribute.style(the[_windowEl], {
                     display: 'none',
                     visibility: 'visible'
@@ -223,12 +211,25 @@ var Window = UI.extend({
                 return the;
             }
 
-            time.nextFrame(function () {
-                attribute.style(the[_windowEl], pos);
-                options.openAnimation.call(the, pos, function () {
-                    the[_state] = WINDOW_STATE_VISIBLE;
-                    the[_focusEl].focus();
-                    the.emit('afterOpen');
+            time.nextTick(function () {
+                the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
+                object.assign(pos, the[_lastPosition]);
+
+                if (the.emit('beforeOpen', pos) === false) {
+                    attribute.style(the[_windowEl], {
+                        display: 'none',
+                        visibility: 'visible'
+                    });
+                    return the;
+                }
+
+                time.nextFrame(function () {
+                    attribute.style(the[_windowEl], pos);
+                    options.openAnimation.call(the, pos, function () {
+                        the[_state] = WINDOW_STATE_VISIBLE;
+                        the[_focusEl].focus();
+                        the.emit('afterOpen');
+                    });
                 });
             });
         });
