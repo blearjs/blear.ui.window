@@ -198,13 +198,12 @@ var Window = UI.extend({
             the[_lastPosition] = null;
         }
 
-        the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
-        var pos = object.assign(true, {}, the[_lastPosition], {
+        var pos = {
             visibility: 'visible',
             zIndex: UI.zIndex()
-        });
+        };
 
-        if (the.emit('beforeOpen', pos) === false) {
+        if (the.emit('willOpen', pos) === false) {
             attribute.style(the[_windowEl], {
                 display: 'none',
                 visibility: 'visible'
@@ -212,12 +211,25 @@ var Window = UI.extend({
             return the;
         }
 
-        time.nextFrame(function () {
-            attribute.style(the[_windowEl], pos);
-            options.openAnimation.call(the, pos, function () {
-                the[_state] = WINDOW_STATE_VISIBLE;
-                the[_focusEl].focus();
-                the.emit('afterOpen');
+        time.nextTick(function () {
+            the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
+            object.assign(pos, the[_lastPosition]);
+
+            if (the.emit('beforeOpen', pos) === false) {
+                attribute.style(the[_windowEl], {
+                    display: 'none',
+                    visibility: 'visible'
+                });
+                return the;
+            }
+
+            time.nextFrame(function () {
+                attribute.style(the[_windowEl], pos);
+                options.openAnimation.call(the, pos, function () {
+                    the[_state] = WINDOW_STATE_VISIBLE;
+                    the[_focusEl].focus();
+                    the.emit('afterOpen');
+                });
             });
         });
 
