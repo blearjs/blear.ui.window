@@ -186,15 +186,6 @@ var Window = UI.extend({
             return the;
         }
 
-        var pos = object.assign(true, {}, the[_lastPosition], {
-            visibility: 'visible',
-            zIndex: UI.zIndex()
-        });
-
-        if (the.emit('beforeOpen', pos) === false) {
-            return the;
-        }
-
         the[_state] = WINDOW_STATE_OPENING;
         // 设置显示，便于计算尺寸
         attribute.style(the[_windowEl], {
@@ -208,7 +199,16 @@ var Window = UI.extend({
         }
 
         the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
-        attribute.style(the[_windowEl], pos);
+        var pos = object.assign(true, {}, the[_lastPosition]);
+
+        if (the.emit('beforeOpen', pos) === false) {
+            return the;
+        }
+
+        attribute.style(the[_windowEl], object.assign({
+            visibility: 'visible',
+            zIndex: UI.zIndex()
+        }, pos));
         options.openAnimation.call(the, pos, function () {
             the[_state] = WINDOW_STATE_VISIBLE;
             the[_focusEl].focus();
