@@ -254,8 +254,8 @@ var Window = UI.extend({
             return the;
         }
 
+        object.assign(options, pos);
         var centerPosition = the[_getCenterPosition]();
-
         the[_lastPosition] = object.assign(centerPosition, pos);
         the[_state] = WINDOW_STATE_RESIZING;
         pos = object.assign(true, {}, the[_lastPosition]);
