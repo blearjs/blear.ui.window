@@ -28,12 +28,16 @@ var win = window;
 var doc = win.document;
 // 0 隐藏/已经关闭
 var WINDOW_STATE_HIDDEN = 0;
-// 1 显示
-var WINDOW_STATE_VISIBLE = 1;
+// 1 正在打开
+var WINDOW_STATE_OPENING = 1;
 // 2 正在改变尺寸
 var WINDOW_STATE_RESIZING = 2;
-// 3 已经销毁
-var WINDOW_STATE_DESTROYED = 3;
+// 3 已打开
+var WINDOW_STATE_VISIBLE = 3;
+// 4 正在关闭
+var WINDOW_STATE_CLOSING = 4;
+// 5 已经销毁
+var WINDOW_STATE_DESTROYED = 5;
 var defaultAnimation = function (to, done) {
     attribute.style(this.getElement(), to);
     done();
@@ -180,14 +184,14 @@ var Window = UI.extend({
             visibility: 'visible',
             zIndex: UI.zIndex()
         };
-
+        
         time.nextTick(function () {
             if (the[_state] !== WINDOW_STATE_HIDDEN) {
                 the.setZindex(UI.zIndex());
                 return;
             }
 
-            the[_state] = WINDOW_STATE_VISIBLE;
+            the[_state] = WINDOW_STATE_OPENING;
             // 设置显示，便于计算尺寸
             attribute.style(the[_windowEl], {
                 display: 'block',
@@ -199,6 +203,7 @@ var Window = UI.extend({
                 the[_lastPosition] = null;
             }
 
+            // 窗口将要打开
             if (the.emit('willOpen', pos) === false) {
                 attribute.style(the[_windowEl], {
                     display: 'none',
@@ -212,6 +217,7 @@ var Window = UI.extend({
                 the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
                 object.assign(pos, the[_lastPosition]);
 
+                // 窗口打开之前
                 if (the.emit('beforeOpen', pos) === false) {
                     attribute.style(the[_windowEl], {
                         display: 'none',
@@ -224,6 +230,7 @@ var Window = UI.extend({
                 time.nextFrame(function () {
                     attribute.style(the[_windowEl], pos);
                     options.openAnimation.call(the, pos, function () {
+                        the[_state] = WINDOW_STATE_VISIBLE;
                         the[_focusEl].focus();
                         the.emit('afterOpen');
                     });
@@ -296,24 +303,26 @@ var Window = UI.extend({
         var the = this;
         var options = the[_options];
 
-        if (the[_state] !== WINDOW_STATE_VISIBLE) {
+        if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
             return the;
         }
 
-        var pos = {};
-        if (the.emit('beforeClose', pos) === false) {
-            return the;
-        }
+        // 等待窗口打开之后再关闭
+        fun.until(function () {
+            var pos = {};
+            the[_state] = WINDOW_STATE_CLOSING;
+            the[_focusEl].blur();
+            the.emit('beforeClose', pos);
 
-        the[_state] = WINDOW_STATE_HIDDEN;
-        the[_focusEl].blur();
-        time.nextFrame(function () {
             options.closeAnimation.call(the, pos, function () {
                 attribute.style(the[_windowEl], {
                     display: 'none'
                 });
+                the[_state] = WINDOW_STATE_HIDDEN;
                 the.emit('afterClose');
             });
+        }, function () {
+            return the[_state] === WINDOW_STATE_VISIBLE;
         });
 
         return the;
