@@ -227,7 +227,7 @@ var Window = UI.extend({
                     return the;
                 }
 
-                time.nextFrame(function () {
+                time.nextTick(function () {
                     attribute.style(the[_windowEl], pos);
                     options.openAnimation.call(the, pos, function () {
                         the[_state] = WINDOW_STATE_VISIBLE;
@@ -273,26 +273,28 @@ var Window = UI.extend({
         var the = this;
         var options = the[_options];
 
-        if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
-            return the;
-        }
+        time.nextTick(function () {
+            if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
+                return the;
+            }
 
-        // 等待窗口打开之后
-        fun.until(function () {
-            object.assign(options, pos);
-            var centerPosition = the[_getCenterPosition]();
-            the[_lastPosition] = object.assign(centerPosition, pos);
-            the[_state] = WINDOW_STATE_RESIZING;
-            pos = object.assign(true, {}, the[_lastPosition]);
-            the.emit('beforeResize', pos);
-            time.nextFrame(function () {
-                options.resizeAnimation.call(the, pos, function () {
-                    the[_state] = WINDOW_STATE_VISIBLE;
-                    the.emit('afterResize');
+            // 等待窗口打开之后
+            fun.until(function () {
+                object.assign(options, pos);
+                var centerPosition = the[_getCenterPosition]();
+                the[_lastPosition] = object.assign(centerPosition, pos);
+                the[_state] = WINDOW_STATE_RESIZING;
+                pos = object.assign(true, {}, the[_lastPosition]);
+                the.emit('beforeResize', pos);
+                time.nextFrame(function () {
+                    options.resizeAnimation.call(the, pos, function () {
+                        the[_state] = WINDOW_STATE_VISIBLE;
+                        the.emit('afterResize');
+                    });
                 });
+            }, function () {
+                return the[_state] === WINDOW_STATE_VISIBLE;
             });
-        }, function () {
-            return the[_state] === WINDOW_STATE_VISIBLE;
         });
 
         return the;
@@ -307,26 +309,29 @@ var Window = UI.extend({
         var the = this;
         var options = the[_options];
 
-        if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
-            return the;
-        }
+        time.nextTick(function () {
+            if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
+                return the;
+            }
 
-        // 等待窗口打开之后再关闭
-        fun.until(function () {
-            var pos = {};
-            the[_state] = WINDOW_STATE_CLOSING;
-            the[_focusEl].blur();
-            the.emit('beforeClose', pos);
-
-            options.closeAnimation.call(the, pos, function () {
-                attribute.style(the[_windowEl], {
-                    display: 'none'
+            // 等待窗口打开之后再关闭
+            fun.until(function () {
+                var pos = {};
+                the[_state] = WINDOW_STATE_CLOSING;
+                the[_focusEl].blur();
+                the.emit('beforeClose', pos);
+                time.nextTick(function () {
+                    options.closeAnimation.call(the, pos, function () {
+                        attribute.style(the[_windowEl], {
+                            display: 'none'
+                        });
+                        the[_state] = WINDOW_STATE_HIDDEN;
+                        the.emit('afterClose');
+                    });
                 });
-                the[_state] = WINDOW_STATE_HIDDEN;
-                the.emit('afterClose');
+            }, function () {
+                return the[_state] === WINDOW_STATE_VISIBLE;
             });
-        }, function () {
-            return the[_state] === WINDOW_STATE_VISIBLE;
         });
 
         return the;
