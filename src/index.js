@@ -184,7 +184,7 @@ var Window = UI.extend({
             visibility: 'visible',
             zIndex: UI.zIndex()
         };
-        
+
         time.nextTick(function () {
             if (the[_state] !== WINDOW_STATE_HIDDEN) {
                 the.setZindex(UI.zIndex());
@@ -273,22 +273,26 @@ var Window = UI.extend({
         var the = this;
         var options = the[_options];
 
-        if (the[_state] !== WINDOW_STATE_VISIBLE) {
+        if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
             return the;
         }
 
-        object.assign(options, pos);
-        var centerPosition = the[_getCenterPosition]();
-        the[_lastPosition] = object.assign(centerPosition, pos);
-        the[_state] = WINDOW_STATE_RESIZING;
-        pos = object.assign(true, {}, the[_lastPosition]);
-        the.emit('beforeResize', pos);
-
-        time.nextFrame(function () {
-            options.resizeAnimation.call(the, pos, function () {
-                the[_state] = WINDOW_STATE_VISIBLE;
-                the.emit('afterResize');
+        // 等待窗口打开之后
+        fun.until(function () {
+            object.assign(options, pos);
+            var centerPosition = the[_getCenterPosition]();
+            the[_lastPosition] = object.assign(centerPosition, pos);
+            the[_state] = WINDOW_STATE_RESIZING;
+            pos = object.assign(true, {}, the[_lastPosition]);
+            the.emit('beforeResize', pos);
+            time.nextFrame(function () {
+                options.resizeAnimation.call(the, pos, function () {
+                    the[_state] = WINDOW_STATE_VISIBLE;
+                    the.emit('afterResize');
+                });
             });
+        }, function () {
+            return the[_state] === WINDOW_STATE_VISIBLE;
         });
 
         return the;
