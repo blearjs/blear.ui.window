@@ -28,16 +28,12 @@ var win = window;
 var doc = win.document;
 // 0 隐藏/已经关闭
 var WINDOW_STATE_HIDDEN = 0;
-// 1 正在打开
-var WINDOW_STATE_OPENING = 1;
-// 2 已打开
-var WINDOW_STATE_VISIBLE = 2;
-// 3 正在改变尺寸
-var WINDOW_STATE_RESIZING = 3;
-// 4 正在关闭
-var WINDOW_STATE_CLOSING = 4;
-// 5 已经销毁
-var WINDOW_STATE_DESTROYED = 5;
+// 1 显示
+var WINDOW_STATE_VISIBLE = 1;
+// 2 正在改变尺寸
+var WINDOW_STATE_RESIZING = 2;
+// 3 已经销毁
+var WINDOW_STATE_DESTROYED = 3;
 var defaultAnimation = function (to, done) {
     attribute.style(this.getElement(), to);
     done();
@@ -191,7 +187,7 @@ var Window = UI.extend({
                 return;
             }
 
-            the[_state] = WINDOW_STATE_OPENING;
+            the[_state] = WINDOW_STATE_VISIBLE;
             // 设置显示，便于计算尺寸
             attribute.style(the[_windowEl], {
                 display: 'block',
@@ -208,6 +204,7 @@ var Window = UI.extend({
                     display: 'none',
                     visibility: 'visible'
                 });
+                the[_state] = WINDOW_STATE_HIDDEN;
                 return the;
             }
 
@@ -220,13 +217,13 @@ var Window = UI.extend({
                         display: 'none',
                         visibility: 'visible'
                     });
+                    the[_state] = WINDOW_STATE_HIDDEN;
                     return the;
                 }
 
                 time.nextFrame(function () {
                     attribute.style(the[_windowEl], pos);
                     options.openAnimation.call(the, pos, function () {
-                        the[_state] = WINDOW_STATE_VISIBLE;
                         the[_focusEl].focus();
                         the.emit('afterOpen');
                     });
@@ -304,16 +301,17 @@ var Window = UI.extend({
         }
 
         var pos = {};
-        the[_state] = WINDOW_STATE_CLOSING;
-        the[_focusEl].blur();
-        the.emit('beforeClose', pos);
+        if (the.emit('beforeClose', pos) === false) {
+            return the;
+        }
 
+        the[_state] = WINDOW_STATE_HIDDEN;
+        the[_focusEl].blur();
         time.nextFrame(function () {
             options.closeAnimation.call(the, pos, function () {
                 attribute.style(the[_windowEl], {
                     display: 'none'
                 });
-                the[_state] = WINDOW_STATE_HIDDEN;
                 the.emit('afterClose');
             });
         });
