@@ -39,7 +39,7 @@ var WINDOW_STATE_CLOSING = 4;
 // 5 已经销毁
 var WINDOW_STATE_DESTROYED = 5;
 var defaultAnimation = function (to, done) {
-    attribute.style(this.getElement(), to);
+    attribute.style(this.getWindowElement(), to);
     done();
 };
 var defaults = {
@@ -342,7 +342,7 @@ var Window = UI.extend({
      * 获取 window element
      * @returns {HTMLDivElement}
      */
-    getElement: function () {
+    getWindowEl: function () {
         return this[_windowEl];
     },
 
