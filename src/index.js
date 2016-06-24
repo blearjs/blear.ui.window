@@ -162,12 +162,10 @@ var Window = UI.extend({
      * @param zIndex {Number} 三维高度
      * @returns {Window}
      */
-    setZindex: function (zIndex) {
+    zIndex: function (zIndex) {
         var the = this;
 
-        attribute.style(the[_windowEl], {
-            'z-index': zIndex
-        });
+        the[_zIndex] = zIndex;
 
         return the;
     },
@@ -181,30 +179,41 @@ var Window = UI.extend({
         var the = this;
         var options = the[_options];
         var pos = {
-            visibility: 'visible',
-            zIndex: UI.zIndex()
+            visibility: 'visible'
         };
 
-        time.nextTick(function () {
-            if (the[_state] !== WINDOW_STATE_HIDDEN) {
-                the.setZindex(UI.zIndex());
-                return;
-            }
+        if (the[_state] !== WINDOW_STATE_HIDDEN) {
+            return the;
+        }
 
-            the[_state] = WINDOW_STATE_OPENING;
-            // 设置显示，便于计算尺寸
+        the[_state] = WINDOW_STATE_OPENING;
+        // 设置显示，便于计算尺寸
+        attribute.style(the[_windowEl], {
+            display: 'block',
+            visibility: 'hidden'
+        });
+
+        if (the[_shouldUpdate]) {
+            the[_shouldUpdate] = false;
+            the[_lastPosition] = null;
+        }
+
+        // 窗口将要打开
+        if (the.emit('willOpen', pos) === false) {
             attribute.style(the[_windowEl], {
-                display: 'block',
-                visibility: 'hidden'
+                display: 'none',
+                visibility: 'visible'
             });
+            the[_state] = WINDOW_STATE_HIDDEN;
+            return the;
+        }
 
-            if (the[_shouldUpdate]) {
-                the[_shouldUpdate] = false;
-                the[_lastPosition] = null;
-            }
+        time.nextTick(function () {
+            the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
+            object.assign(pos, the[_lastPosition]);
 
-            // 窗口将要打开
-            if (the.emit('willOpen', pos) === false) {
+            // 窗口打开之前
+            if (the.emit('beforeOpen', pos) === false) {
                 attribute.style(the[_windowEl], {
                     display: 'none',
                     visibility: 'visible'
@@ -214,26 +223,12 @@ var Window = UI.extend({
             }
 
             time.nextTick(function () {
-                the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
-                object.assign(pos, the[_lastPosition]);
-
-                // 窗口打开之前
-                if (the.emit('beforeOpen', pos) === false) {
-                    attribute.style(the[_windowEl], {
-                        display: 'none',
-                        visibility: 'visible'
-                    });
-                    the[_state] = WINDOW_STATE_HIDDEN;
-                    return the;
-                }
-
-                time.nextTick(function () {
-                    attribute.style(the[_windowEl], pos);
-                    options.openAnimation.call(the, pos, function () {
-                        the[_state] = WINDOW_STATE_VISIBLE;
-                        the[_focusEl].focus();
-                        the.emit('afterOpen');
-                    });
+                pos.zIndex = the[_zIndex] || UI.zIndex();
+                attribute.style(the[_windowEl], pos);
+                options.openAnimation.call(the, pos, function () {
+                    the[_state] = WINDOW_STATE_VISIBLE;
+                    the[_focusEl].focus();
+                    the.emit('afterOpen');
                 });
             });
         });
@@ -408,6 +403,7 @@ var _lastPosition = Window.sole();
 var _shouldUpdate = Window.sole();
 // window 状态：
 var _state = Window.sole();
+var _zIndex = Window.sole();
 var pro = Window.prototype;
 
 
