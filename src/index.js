@@ -39,7 +39,7 @@ var WINDOW_STATE_CLOSING = 4;
 // 5 已经销毁
 var WINDOW_STATE_DESTROYED = 5;
 var defaultAnimation = function (to, done) {
-    attribute.style(this.getWindowElement(), to);
+    attribute.style(this.getWindowEl(), to);
     done();
 };
 var defaults = {
