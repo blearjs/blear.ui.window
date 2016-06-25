@@ -343,6 +343,15 @@ var Window = UI.extend({
 
 
     /**
+     * 获取 container element
+     * @returns {HTMLDivElement}
+     */
+    getContainerEl: function () {
+        return this[_containerEl];
+    },
+
+
+    /**
      * 获取配置
      * @returns {*}
      */
