@@ -5,7 +5,6 @@
  */
 
 
-
 'use strict';
 
 var object = require('blear.utils.object');
@@ -23,7 +22,7 @@ var UI = require('blear.ui');
 var template = require('./template.html', 'html');
 
 var uiIndex = 0;
-var uiClass = UI.UI_CLASS + '-window';
+var namespace = UI.UI_CLASS + '-window';
 var win = window;
 var doc = win.document;
 // 0 隐藏/已经关闭
@@ -135,9 +134,9 @@ var Window = UI.extend({
         // init node
         var windowEl = modification.parse(template);
         attribute.addClass(windowEl, options.addClass);
-        the[_focusEl] = selector.query('input', windowEl)[0];
-        the[_containerEl] = selector.query('div', windowEl)[0];
-        windowEl.id = uiClass + '-' + uiIndex++;
+        the[_focusEl] = selector.query('.' + namespace + '-focus', windowEl)[0];
+        the[_containerEl] = selector.query('.' + namespace + '-container', windowEl)[0];
+        windowEl.id = namespace + '-' + uiIndex++;
         attribute.style(windowEl, 'position', options.position);
         the[_state] = WINDOW_STATE_HIDDEN;
         the[_windowEl] = windowEl;
