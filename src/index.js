@@ -48,6 +48,12 @@ var defaults = {
      */
     position: 'fixed',
 
+    // /**
+    //  * 自动层级管理
+    //  * @type Boolean
+    //  */
+    // autoZIndex: true,
+
     /**
      * 宽度
      * @type Number
@@ -118,7 +124,16 @@ var defaults = {
      * 关闭窗口的动画
      * @type Null|Function
      */
-    closeAnimation: null
+    closeAnimation: null,
+
+    /**
+     * 自定义渲染器
+     * @param windowEl
+     * @param options
+     */
+    render: function (windowEl, options) {
+
+    }
 };
 var Window = UI.extend({
     className: 'Window',
@@ -132,18 +147,15 @@ var Window = UI.extend({
         options.closeAnimation = options.closeAnimation || defaultAnimation;
 
         // init node
-        var windowEl = modification.parse(template);
+        var windowEl = the[_windowEl] = modification.parse(template);
         attribute.addClass(windowEl, options.addClass);
         the[_focusEl] = selector.query('.' + namespace + '-focus', windowEl)[0];
         the[_containerEl] = selector.query('.' + namespace + '-container', windowEl)[0];
         windowEl.id = namespace + '-' + uiIndex++;
         attribute.style(windowEl, 'position', options.position);
         the[_state] = WINDOW_STATE_HIDDEN;
-        the[_windowEl] = windowEl;
-        modification.insert(the[_windowEl]);
-        time.nextTick(function () {
-            the.emit('rendered', windowEl, options);
-        });
+        modification.insert(windowEl);
+        options.render.call(the, windowEl, options);
     },
 
 
@@ -177,39 +189,27 @@ var Window = UI.extend({
     open: function () {
         var the = this;
         var options = the[_options];
-        var pos = {
-            visibility: 'visible'
-        };
-
-        if (the[_state] !== WINDOW_STATE_HIDDEN) {
-            return the;
-        }
-
-        the[_state] = WINDOW_STATE_OPENING;
-        // 设置显示，便于计算尺寸
-        attribute.style(the[_windowEl], {
-            display: 'block',
-            visibility: 'hidden'
-        });
-
-        if (the[_shouldUpdate]) {
-            the[_shouldUpdate] = false;
-            the[_lastPosition] = null;
-        }
-
-        // 窗口将要打开
-        if (the.emit('willOpen', pos) === false) {
-            attribute.style(the[_windowEl], {
-                display: 'none',
-                visibility: 'visible'
-            });
-            the[_state] = WINDOW_STATE_HIDDEN;
-            return the;
-        }
 
         time.nextTick(function () {
-            the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
-            object.assign(pos, the[_lastPosition]);
+            if (the[_state] !== WINDOW_STATE_HIDDEN) {
+                return the;
+            }
+
+            var pos = {
+                visibility: 'visible'
+            };
+
+            the[_state] = WINDOW_STATE_OPENING;
+            // 设置显示，便于计算尺寸
+            attribute.style(the[_windowEl], {
+                display: 'block',
+                visibility: 'hidden'
+            });
+
+            if (the[_shouldUpdate]) {
+                the[_shouldUpdate] = false;
+                the[_lastPosition] = null;
+            }
 
             // 窗口打开之前
             if (the.emit('beforeOpen', pos) === false) {
@@ -221,14 +221,15 @@ var Window = UI.extend({
                 return the;
             }
 
-            time.nextTick(function () {
-                pos.zIndex = the[_zIndex] || UI.zIndex();
-                attribute.style(the[_windowEl], pos);
-                options.openAnimation.call(the, pos, function () {
-                    the[_state] = WINDOW_STATE_VISIBLE;
-                    the[_focusEl].focus();
-                    the.emit('afterOpen');
-                });
+            the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
+            pos = object.assign({}, the[_lastPosition], pos);
+            pos.zIndex = the[_zIndex] || UI.zIndex();
+            the.emit('open', pos);
+            attribute.style(the[_windowEl], pos);
+            options.openAnimation.call(the, pos, function () {
+                the[_state] = WINDOW_STATE_VISIBLE;
+                the[_focusEl].focus();
+                the.emit('afterOpen');
             });
         });
 
@@ -311,17 +312,20 @@ var Window = UI.extend({
             // 等待窗口打开之后再关闭
             fun.until(function () {
                 var pos = {};
+
+                if (the.emit('beforeClose', pos) === false) {
+                    return;
+                }
+
                 the[_state] = WINDOW_STATE_CLOSING;
                 the[_focusEl].blur();
-                the.emit('beforeClose', pos);
-                time.nextTick(function () {
-                    options.closeAnimation.call(the, pos, function () {
-                        attribute.style(the[_windowEl], {
-                            display: 'none'
-                        });
-                        the[_state] = WINDOW_STATE_HIDDEN;
-                        the.emit('afterClose');
+                the.emit('close', pos);
+                options.closeAnimation.call(the, pos, function () {
+                    attribute.style(the[_windowEl], {
+                        display: 'none'
                     });
+                    the[_state] = WINDOW_STATE_HIDDEN;
+                    the.emit('afterClose');
                 });
             }, function () {
                 return the[_state] === WINDOW_STATE_VISIBLE;
