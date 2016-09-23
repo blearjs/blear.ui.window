@@ -13,6 +13,7 @@ var typeis = require('blear.utils.typeis');
 var number = require('blear.utils.number');
 var fun = require('blear.utils.function');
 var time = require('blear.utils.time');
+var access = require('blear.utils.access');
 var selector = require('blear.core.selector');
 var attribute = require('blear.core.attribute');
 var layout = require('blear.core.layout');
@@ -184,14 +185,17 @@ var Window = UI.extend({
 
     /**
      * 打开窗口
+     * @param [callback] {Function}
      * @returns {Window}
      */
-    open: function () {
+    open: function (callback) {
         var the = this;
         var options = the[_options];
 
+        callback = fun.noop(callback);
         time.nextTick(function () {
             if (the[_state] !== WINDOW_STATE_HIDDEN) {
+                callback.call(the);
                 return the;
             }
 
@@ -218,6 +222,7 @@ var Window = UI.extend({
                     visibility: 'visible'
                 });
                 the[_state] = WINDOW_STATE_HIDDEN;
+                callback.call(the);
                 return the;
             }
 
@@ -230,6 +235,7 @@ var Window = UI.extend({
                 the[_state] = WINDOW_STATE_VISIBLE;
                 the[_focusEl].focus();
                 the.emit('afterOpen');
+                callback.call(the);
             });
         });
 
@@ -239,17 +245,20 @@ var Window = UI.extend({
 
     /**
      * 更新 window 信息
+     * @param [callback] {Function}
      * @returns {Window}
      */
-    update: function () {
+    update: function (callback) {
         var the = this;
 
         if (the[_state] === WINDOW_STATE_VISIBLE) {
-            return the.resize();
+            return the.resize(callback);
         }
 
         // 标记需要更新
         the[_shouldUpdate] = true;
+        callback = fun.noop(callback);
+        callback.call(the);
 
         return the;
     },
@@ -262,14 +271,23 @@ var Window = UI.extend({
      * @param [pos.height] {Number} 位置
      * @param [pos.top] {Number} 位置
      * @param [pos.left] {Number} 位置
+     * @param [callback] {Function}
      * @returns {Window}
      */
-    resize: function (pos) {
+    resize: function (pos, callback) {
         var the = this;
         var options = the[_options];
+        var args = access.args(arguments);
 
+        if (args.length === 1 && typeis.Function(args[0])) {
+            callback = args[0];
+            pos = {};
+        }
+
+        callback = fun.noop(callback);
         time.nextTick(function () {
             if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
+                callback.call(the);
                 return the;
             }
 
@@ -285,6 +303,7 @@ var Window = UI.extend({
                     options.resizeAnimation.call(the, pos, function () {
                         the[_state] = WINDOW_STATE_VISIBLE;
                         the.emit('afterResize');
+                        callback.call(the);
                     });
                 });
             }, function () {
@@ -298,14 +317,17 @@ var Window = UI.extend({
 
     /**
      * 关闭窗口
+     * @param [callback] {Function}
      * @returns {Window}
      */
-    close: function () {
+    close: function (callback) {
         var the = this;
         var options = the[_options];
 
+        callback = fun.noop(callback);
         time.nextTick(function () {
             if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
+                callback.call(the);
                 return the;
             }
 
@@ -314,6 +336,7 @@ var Window = UI.extend({
                 var pos = {};
 
                 if (the.emit('beforeClose', pos) === false) {
+                    callback.call(the);
                     return;
                 }
 
@@ -326,6 +349,7 @@ var Window = UI.extend({
                     });
                     the[_state] = WINDOW_STATE_HIDDEN;
                     the.emit('afterClose');
+                    callback.call(the);
                 });
             }, function () {
                 return the[_state] === WINDOW_STATE_VISIBLE;
