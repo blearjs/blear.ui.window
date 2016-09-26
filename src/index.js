@@ -193,50 +193,48 @@ var Window = UI.extend({
         var options = the[_options];
 
         callback = fun.noop(callback);
-        time.nextTick(function () {
-            if (the[_state] !== WINDOW_STATE_HIDDEN) {
-                callback.call(the);
-                return the;
-            }
+        if (the[_state] !== WINDOW_STATE_HIDDEN) {
+            callback.call(the);
+            return the;
+        }
 
-            var pos = {
-                visibility: 'visible'
-            };
+        var pos = {
+            visibility: 'visible'
+        };
 
-            the[_state] = WINDOW_STATE_OPENING;
-            // 设置显示，便于计算尺寸
+        the[_state] = WINDOW_STATE_OPENING;
+        // 设置显示，便于计算尺寸
+        attribute.style(the[_windowEl], {
+            display: 'block',
+            visibility: 'hidden'
+        });
+
+        if (the[_shouldUpdate]) {
+            the[_shouldUpdate] = false;
+            the[_lastPosition] = null;
+        }
+
+        // 窗口打开之前
+        if (the.emit('beforeOpen', pos) === false) {
             attribute.style(the[_windowEl], {
-                display: 'block',
-                visibility: 'hidden'
+                display: 'none',
+                visibility: 'visible'
             });
+            the[_state] = WINDOW_STATE_HIDDEN;
+            callback.call(the);
+            return the;
+        }
 
-            if (the[_shouldUpdate]) {
-                the[_shouldUpdate] = false;
-                the[_lastPosition] = null;
-            }
-
-            // 窗口打开之前
-            if (the.emit('beforeOpen', pos) === false) {
-                attribute.style(the[_windowEl], {
-                    display: 'none',
-                    visibility: 'visible'
-                });
-                the[_state] = WINDOW_STATE_HIDDEN;
-                callback.call(the);
-                return the;
-            }
-
-            the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
-            pos = object.assign({}, the[_lastPosition], pos);
-            pos.zIndex = the[_zIndex] || UI.zIndex();
-            the.emit('open', pos);
-            attribute.style(the[_windowEl], pos);
-            options.openAnimation.call(the, pos, function () {
-                the[_state] = WINDOW_STATE_VISIBLE;
-                the[_focusEl].focus();
-                the.emit('afterOpen');
-                callback.call(the);
-            });
+        the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
+        pos = object.assign({}, the[_lastPosition], pos);
+        pos.zIndex = the[_zIndex] || UI.zIndex();
+        the.emit('open', pos);
+        attribute.style(the[_windowEl], pos);
+        options.openAnimation.call(the, pos, function () {
+            the[_state] = WINDOW_STATE_VISIBLE;
+            the[_focusEl].focus();
+            the.emit('afterOpen');
+            callback.call(the);
         });
 
         return the;
@@ -285,30 +283,28 @@ var Window = UI.extend({
         }
 
         callback = fun.noop(callback);
-        time.nextTick(function () {
-            if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
-                callback.call(the);
-                return the;
-            }
+        if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
+            callback.call(the);
+            return the;
+        }
 
-            // 等待窗口打开之后
-            fun.until(function () {
-                object.assign(options, pos);
-                var centerPosition = the[_getCenterPosition]();
-                the[_lastPosition] = object.assign(centerPosition, pos);
-                the[_state] = WINDOW_STATE_RESIZING;
-                pos = object.assign(true, {}, the[_lastPosition]);
-                the.emit('beforeResize', pos);
-                time.nextFrame(function () {
-                    options.resizeAnimation.call(the, pos, function () {
-                        the[_state] = WINDOW_STATE_VISIBLE;
-                        the.emit('afterResize');
-                        callback.call(the);
-                    });
+        // 等待窗口打开之后
+        fun.until(function () {
+            object.assign(options, pos);
+            var centerPosition = the[_getCenterPosition]();
+            the[_lastPosition] = object.assign(centerPosition, pos);
+            the[_state] = WINDOW_STATE_RESIZING;
+            pos = object.assign(true, {}, the[_lastPosition]);
+            the.emit('beforeResize', pos);
+            time.nextFrame(function () {
+                options.resizeAnimation.call(the, pos, function () {
+                    the[_state] = WINDOW_STATE_VISIBLE;
+                    the.emit('afterResize');
+                    callback.call(the);
                 });
-            }, function () {
-                return the[_state] === WINDOW_STATE_VISIBLE;
             });
+        }, function () {
+            return the[_state] === WINDOW_STATE_VISIBLE;
         });
 
         return the;
@@ -325,35 +321,33 @@ var Window = UI.extend({
         var options = the[_options];
 
         callback = fun.noop(callback);
-        time.nextTick(function () {
-            if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
+        if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
+            callback.call(the);
+            return the;
+        }
+
+        // 等待窗口打开之后再关闭
+        fun.until(function () {
+            var pos = {};
+
+            if (the.emit('beforeClose', pos) === false) {
                 callback.call(the);
-                return the;
+                return;
             }
 
-            // 等待窗口打开之后再关闭
-            fun.until(function () {
-                var pos = {};
-
-                if (the.emit('beforeClose', pos) === false) {
-                    callback.call(the);
-                    return;
-                }
-
-                the[_state] = WINDOW_STATE_CLOSING;
-                the[_focusEl].blur();
-                the.emit('close', pos);
-                options.closeAnimation.call(the, pos, function () {
-                    attribute.style(the[_windowEl], {
-                        display: 'none'
-                    });
-                    the[_state] = WINDOW_STATE_HIDDEN;
-                    the.emit('afterClose');
-                    callback.call(the);
+            the[_state] = WINDOW_STATE_CLOSING;
+            the[_focusEl].blur();
+            the.emit('close', pos);
+            options.closeAnimation.call(the, pos, function () {
+                attribute.style(the[_windowEl], {
+                    display: 'none'
                 });
-            }, function () {
-                return the[_state] === WINDOW_STATE_VISIBLE;
+                the[_state] = WINDOW_STATE_HIDDEN;
+                the.emit('afterClose');
+                callback.call(the);
             });
+        }, function () {
+            return the[_state] === WINDOW_STATE_VISIBLE;
         });
 
         return the;
