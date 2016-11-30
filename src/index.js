@@ -416,7 +416,7 @@ var Window = UI.extend({
         fun.until(function () {
             the[_state] = WINDOW_STATE_DESTROYED;
             modification.remove(the[_windowEl]);
-            Window.parent.destroy(the);
+            Window.invoke('destroy', the);
             callback.call(the);
         }, function () {
             the.close();
