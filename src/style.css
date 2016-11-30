@@ -1,9 +1,7 @@
 .blearui-window {
   display: none; }
   .blearui-window-container {
-    position: relative;
-    width: 100%;
-    height: 100%; }
+    position: relative; }
   .blearui-window-focus {
     position: absolute !important;
     width: 0 !important;
