@@ -462,22 +462,34 @@ pro[_getCenterPosition] = function (ext) {
     var topRate = options.topRate;
     var left = 'auto';
     var top = 'auto';
+    var marginRight = 0;
+    var marginBottom = 0;
 
     if (leftRate !== 'auto') {
         left = (winWidth - theWidth) * leftRate;
-        left = Math.max(number.parseFloat(left), 0);
+        left = Math.max(left, 0);
+
+        if (left === 0) {
+            marginRight = top = winWidth * leftRate * leftRate;
+        }
     }
 
     if (topRate !== 'auto') {
         top = (winHeight - theHeight) * topRate;
-        top = Math.max(number.parseFloat(top), 0);
+        top = Math.max(top, 0);
+
+        if (top === 0) {
+            marginBottom = top = winHeight * topRate * topRate;
+        }
     }
 
     return object.assign({
         top: top,
         left: left,
         width: theWidth,
-        height: theHeight
+        height: theHeight,
+        marginRight: marginRight,
+        marginBottom: marginBottom
     }, ext);
 };
 
