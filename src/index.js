@@ -487,7 +487,7 @@ pro[_getCenterPosition] = function (ext) {
         top: top,
         left: left,
         width: theWidth,
-        height: theHeight,
+        // height: theHeight,
         marginRight: marginRight,
         marginBottom: marginBottom
     }, ext);
