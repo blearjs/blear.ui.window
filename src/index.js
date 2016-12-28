@@ -229,7 +229,10 @@ var Window = UI.extend({
         pos = object.assign({}, the[_lastPosition], pos);
         pos.zIndex = the[_zIndex] || UI.zIndex();
         the.emit('open', pos);
-        attribute.style(the[_windowEl], pos);
+        attribute.style(the[_windowEl], object.filter(pos, function (val) {
+            // 不再自动设置弹窗的 width、height
+            return val !== 'width' && val !== 'height';
+        }));
         options.openAnimation.call(the, pos, function () {
             the[_state] = WINDOW_STATE_VISIBLE;
             the[_focusEl].focus();
@@ -487,7 +490,7 @@ pro[_getCenterPosition] = function (ext) {
         top: top,
         left: left,
         width: theWidth,
-        // height: theHeight,
+        height: theHeight,
         marginRight: marginRight,
         marginBottom: marginBottom
     }, ext);
