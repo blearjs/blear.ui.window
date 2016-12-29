@@ -209,11 +209,6 @@ var Window = UI.extend({
             visibility: 'hidden'
         });
 
-        if (the[_shouldUpdate]) {
-            the[_shouldUpdate] = false;
-            the[_lastPosition] = null;
-        }
-
         // 窗口打开之前
         if (the.emit('beforeOpen', pos) === false) {
             attribute.style(the[_windowEl], {
@@ -225,14 +220,9 @@ var Window = UI.extend({
             return the;
         }
 
-        the[_lastPosition] = the[_lastPosition] || the[_getCenterPosition]();
-        pos = object.assign({}, the[_lastPosition], pos);
+        pos = object.assign({}, the[_getCenterPosition](), pos);
         pos.zIndex = the[_zIndex] || UI.zIndex();
         the.emit('open', pos);
-        pos = object.filter(pos, function (val, key) {
-            // 不再自动设置弹窗的 width、height
-            return key !== 'width' && key !== 'height';
-        });
         attribute.style(the[_windowEl], pos);
         options.openAnimation.call(the, pos, function () {
             the[_state] = WINDOW_STATE_VISIBLE;
@@ -257,8 +247,6 @@ var Window = UI.extend({
             return the.resize(callback);
         }
 
-        // 标记需要更新
-        the[_shouldUpdate] = true;
         callback = fun.noop(callback);
         callback.call(the);
 
@@ -287,6 +275,7 @@ var Window = UI.extend({
         }
 
         callback = fun.noop(callback);
+
         if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
             callback.call(the);
             return the;
@@ -294,11 +283,9 @@ var Window = UI.extend({
 
         // 等待窗口打开之后
         fun.until(function () {
-            object.assign(options, pos);
             var centerPosition = the[_getCenterPosition]();
-            the[_lastPosition] = object.assign(centerPosition, pos);
+            pos = object.assign(centerPosition, pos);
             the[_state] = WINDOW_STATE_RESIZING;
-            pos = object.assign(true, {}, the[_lastPosition]);
             the.emit('beforeResize', pos);
             time.nextFrame(function () {
                 options.resizeAnimation.call(the, pos, function () {
@@ -433,8 +420,6 @@ var _focusEl = Window.sole();
 var _containerEl = Window.sole();
 var _options = Window.sole();
 var _getCenterPosition = Window.sole();
-var _lastPosition = Window.sole();
-var _shouldUpdate = Window.sole();
 // window 状态：
 var _state = Window.sole();
 var _zIndex = Window.sole();
@@ -493,7 +478,13 @@ pro[_getCenterPosition] = function (ext) {
         width: theWidth,
         height: theHeight,
         marginRight: marginRight,
-        marginBottom: marginBottom
+        marginBottom: marginBottom,
+        // 不能设置最小、最大尺寸，在 IOS 下浏览器弹性滚动之后，浏览器的最大尺寸会发生变化
+        // 同时会导致，ui.window 里的定位元素出现混乱
+        minWidth: '',
+        minHeight: '',
+        maxWidth: '',
+        maxHeight: ''
     }, ext);
 };
 
