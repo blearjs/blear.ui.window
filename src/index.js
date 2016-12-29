@@ -229,10 +229,11 @@ var Window = UI.extend({
         pos = object.assign({}, the[_lastPosition], pos);
         pos.zIndex = the[_zIndex] || UI.zIndex();
         the.emit('open', pos);
-        attribute.style(the[_windowEl], object.filter(pos, function (val) {
+        pos = object.filter(pos, function (val, key) {
             // 不再自动设置弹窗的 width、height
-            return val !== 'width' && val !== 'height';
-        }));
+            return key !== 'width' && key !== 'height';
+        });
+        attribute.style(the[_windowEl], pos);
         options.openAnimation.call(the, pos, function () {
             the[_state] = WINDOW_STATE_VISIBLE;
             the[_focusEl].focus();
