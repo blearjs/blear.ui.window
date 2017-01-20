@@ -109,6 +109,15 @@ var defaults = {
      */
     addClass: '',
 
+    // 动画参数
+    animationOptions: {
+        // 动画时间
+        duration: 456,
+
+        // 动画缓冲
+        easing: 'linear'
+    },
+
     /**
      * 打开窗口的动画
      * @type Null|Function
