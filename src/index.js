@@ -198,7 +198,7 @@ var Window = UI.extend({
         var the = this;
         var options = the[_options];
 
-        callback = fun.noop(callback);
+        callback = fun.ensure(callback);
         if (the[_state] !== WINDOW_STATE_HIDDEN) {
             callback.call(the);
             return the;
@@ -252,7 +252,7 @@ var Window = UI.extend({
             return the.resize(callback);
         }
 
-        callback = fun.noop(callback);
+        callback = fun.ensure(callback);
         callback.call(the);
 
         return the;
@@ -278,7 +278,7 @@ var Window = UI.extend({
             pos = {};
         }
 
-        callback = fun.noop(callback);
+        callback = fun.ensure(callback);
 
         if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
             callback.call(the);
@@ -314,7 +314,7 @@ var Window = UI.extend({
         var the = this;
         var options = the[_options];
 
-        callback = fun.noop(callback);
+        callback = fun.ensure(callback);
         if (the[_state] < WINDOW_STATE_OPENING || the[_state] > WINDOW_STATE_VISIBLE) {
             callback.call(the);
             return the;
@@ -407,7 +407,7 @@ var Window = UI.extend({
     destroy: function (callback) {
         var the = this;
 
-        callback = fun.noop(callback);
+        callback = fun.ensure(callback);
 
         if (the[_state] === WINDOW_STATE_DESTROYED) {
             return;
