@@ -355,7 +355,7 @@ var Window = UI.extend({
     },
 
     /**
-     * 获取配置
+     * 获取配置，不同继承者的参数不同，需要自行实现
      * @param [key]
      * @returns {*}
      */
@@ -364,7 +364,7 @@ var Window = UI.extend({
     },
 
     /**
-     * 获取配置
+     * 获取配置，不同继承者的参数不同，需要自行实现
      * @param key
      * @param val
      * @returns {*}
