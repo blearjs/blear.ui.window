@@ -159,7 +159,6 @@ var Window = UI.extend({
         options.render.call(the, windowEl, options);
     },
 
-
     /**
      * 获得窗口的尺寸
      * @returns {{width:Number, height:Number, top:Number, left:Number}}
@@ -167,7 +166,6 @@ var Window = UI.extend({
     getSize: function () {
         return attribute.style(this[_windowEl], ['width', 'height', 'top', 'left']);
     },
-
 
     /**
      * 设置三维高度
@@ -181,7 +179,6 @@ var Window = UI.extend({
 
         return the;
     },
-
 
     /**
      * 打开窗口
@@ -234,7 +231,6 @@ var Window = UI.extend({
         return the;
     },
 
-
     /**
      * 更新 window 信息
      * @param [callback] {Function}
@@ -252,7 +248,6 @@ var Window = UI.extend({
 
         return the;
     },
-
 
     /**
      * 调整位置，默认居中
@@ -301,7 +296,6 @@ var Window = UI.extend({
         return the;
     },
 
-
     /**
      * 关闭窗口
      * @param [callback] {Function}
@@ -344,7 +338,6 @@ var Window = UI.extend({
         return the;
     },
 
-
     /**
      * 获取 window element
      * @returns {HTMLDivElement}
@@ -352,7 +345,6 @@ var Window = UI.extend({
     getWindowEl: function () {
         return this[_windowEl];
     },
-
 
     /**
      * 获取 container element
@@ -362,15 +354,24 @@ var Window = UI.extend({
         return this[_containerEl];
     },
 
+    /**
+     * 获取配置
+     * @param [key]
+     * @returns {*}
+     */
+    getOptions: function (key) {
+        return UI.getOptions(this, _options, key);
+    },
 
     /**
      * 获取配置
+     * @param key
+     * @param val
      * @returns {*}
      */
-    getOptions: function () {
-        return object.assign(true, {}, this[_options]);
+    setOptions: function (key, val) {
+        return UI.setOptions(this, _options, key, val);
     },
-
 
     /**
      * 设置 HTML
@@ -390,7 +391,6 @@ var Window = UI.extend({
         the.update();
         return selector.children(the[_containerEl])[0];
     },
-
 
     /**
      * 销毁实例
