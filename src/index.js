@@ -42,6 +42,8 @@ var defaultAnimation = function (to, done) {
     attribute.style(this.getWindowEl(), to);
     done();
 };
+var AUTO_STR = 'auto';
+var NONE_STR = 'none';
 var defaults = {
     /**
      * 定位
@@ -65,31 +67,43 @@ var defaults = {
      * 高度
      * @type Number|String
      */
-    height: 'auto',
+    height: AUTO_STR,
+
+    /**
+     * 左位移，默认自动计算
+     * @type String | Number
+     */
+    left: AUTO_STR,
+
+    /**
+     * 上位移，默认自动计算
+     * @type String | Number
+     */
+    top: AUTO_STR,
 
     /**
      * 最小宽度
      * @type Number|String
      */
-    minWidth: 'none',
+    minWidth: NONE_STR,
 
     /**
      * 最小高度
      * @type Number|String
      */
-    minHeight: 'none',
+    minHeight: NONE_STR,
 
     /**
      * 最大宽度
      * @type Number|String
      */
-    maxWidth: 'none',
+    maxWidth: NONE_STR,
 
     /**
      * 最大高度
      * @type Number|String
      */
-    maxHeight: 'none',
+    maxHeight: NONE_STR,
 
     /**
      * 上边距占比
@@ -226,7 +240,7 @@ var Window = UI.extend({
             return the;
         }
 
-        pos = object.assign({}, the[_getCenterPosition](), pos);
+        pos = object.assign({}, the[_getWillDisplayPosition](), pos);
         pos.zIndex = the[_zIndex] || UI.zIndex();
         the.emit('open', pos);
         attribute.style(the[_windowEl], pos);
@@ -287,7 +301,7 @@ var Window = UI.extend({
 
         // 等待窗口打开之后
         fun.until(function () {
-            var centerPosition = the[_getCenterPosition]();
+            var centerPosition = the[_getWillDisplayPosition]();
             pos = object.assign(centerPosition, pos);
             the[_state] = WINDOW_STATE_RESIZING;
             the.emit('beforeResize', pos);
@@ -428,7 +442,7 @@ var _windowEl = Window.sole();
 var _focusEl = Window.sole();
 var _containerEl = Window.sole();
 var _options = Window.sole();
-var _getCenterPosition = Window.sole();
+var _getWillDisplayPosition = Window.sole();
 // window 状态：
 var _state = Window.sole();
 var _zIndex = Window.sole();
@@ -436,10 +450,10 @@ var pro = Window.prototype;
 
 
 /**
- * 获取元素的中间位置的信息
+ * 获取将要显示的位置信息
  * @returns {{top: string, left: string, width: Number, height: Number, marginTop: Number, marginLeft: Number}}
  */
-pro[_getCenterPosition] = function (ext) {
+pro[_getWillDisplayPosition] = function (ext) {
     var the = this;
     var options = the[_options];
 
@@ -458,12 +472,12 @@ pro[_getCenterPosition] = function (ext) {
     var winHeight = layout.height(win);
     var leftRate = options.leftRate;
     var topRate = options.topRate;
-    var left = 'auto';
-    var top = 'auto';
+    var left = options.left;
+    var top = options.top;
     var marginRight = 0;
     var marginBottom = 0;
 
-    if (leftRate !== 'auto') {
+    if (leftRate !== AUTO_STR && left !== AUTO_STR) {
         left = (winWidth - theWidth) * leftRate;
         left = Math.max(left, 0);
 
@@ -472,7 +486,7 @@ pro[_getCenterPosition] = function (ext) {
         }
     }
 
-    if (topRate !== 'auto') {
+    if (topRate !== AUTO_STR && top !== AUTO_STR) {
         top = (winHeight - theHeight) * topRate;
         top = Math.max(top, 0);
 
