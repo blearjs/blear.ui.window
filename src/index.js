@@ -477,7 +477,8 @@ pro[_getWillDisplayPosition] = function (ext) {
     var marginRight = 0;
     var marginBottom = 0;
 
-    if (leftRate !== AUTO_STR && left !== AUTO_STR) {
+    // 左位移比例 && 自动左位移
+    if (leftRate !== AUTO_STR && left === AUTO_STR) {
         left = (winWidth - theWidth) * leftRate;
         left = Math.max(left, 0);
 
@@ -486,7 +487,8 @@ pro[_getWillDisplayPosition] = function (ext) {
         }
     }
 
-    if (topRate !== AUTO_STR && top !== AUTO_STR) {
+    // 上位移比例 && 自动上位移
+    if (topRate !== AUTO_STR && top === AUTO_STR) {
         top = (winHeight - theHeight) * topRate;
         top = Math.max(top, 0);
 
