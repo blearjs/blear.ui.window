@@ -178,7 +178,7 @@ var Window = UI.extend({
         windowEl.id = namespace + '-' + uiIndex++;
         attribute.style(windowEl, 'position', options.position);
         the[_state] = WINDOW_STATE_HIDDEN;
-        modification.insert(windowEl);
+        // modification.insert(windowEl);
         options.render.call(the, windowEl, options);
     },
 
@@ -224,6 +224,7 @@ var Window = UI.extend({
 
         the[_state] = WINDOW_STATE_OPENING;
         // 设置显示，便于计算尺寸
+        modification.insert(the[_windowEl]);
         attribute.style(the[_windowEl], {
             display: 'block',
             visibility: 'hidden'
@@ -237,6 +238,7 @@ var Window = UI.extend({
             });
             the[_state] = WINDOW_STATE_HIDDEN;
             callback.call(the);
+            modification.remove(the[_windowEl]);
             return the;
         }
 
@@ -352,6 +354,7 @@ var Window = UI.extend({
                 });
                 the[_state] = WINDOW_STATE_HIDDEN;
                 the.emit('afterClose');
+                modification.remove(the[_windowEl]);
                 callback.call(the);
             });
         }, function () {
