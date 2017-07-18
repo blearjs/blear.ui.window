@@ -26,6 +26,8 @@ var uiIndex = 0;
 var namespace = UI.UI_CLASS + '-window';
 var win = window;
 var doc = win.document;
+var htmlEl = doc.documentElement;
+var bodyEl = doc.body;
 // 0 隐藏/已经关闭
 var WINDOW_STATE_HIDDEN = 0;
 // 1 正在打开
@@ -494,6 +496,11 @@ pro[_getWillDisplayPosition] = function (ext) {
     if (topRate !== AUTO_STR && top === AUTO_STR) {
         top = (winHeight - theHeight) * topRate;
         top = Math.max(top, 0);
+        // 弹出框加上滚动区域的偏移量
+        top += Math.max(
+            -htmlEl.getBoundingClientRect().top,
+            -bodyEl.getBoundingClientRect().top
+        );
 
         if (top === 0) {
             marginBottom = top = winHeight * topRate * topRate;
