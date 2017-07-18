@@ -496,11 +496,15 @@ pro[_getWillDisplayPosition] = function (ext) {
     if (topRate !== AUTO_STR && top === AUTO_STR) {
         top = (winHeight - theHeight) * topRate;
         top = Math.max(top, 0);
-        // 弹出框加上滚动区域的偏移量
-        top += Math.max(
-            -htmlEl.getBoundingClientRect().top,
-            -bodyEl.getBoundingClientRect().top
-        );
+
+        // 非固定定位时计算偏移量
+        if (options.position !== 'fixed') {
+            // 弹出框加上滚动区域的偏移量
+            top += Math.max(
+                -htmlEl.getBoundingClientRect().top,
+                -bodyEl.getBoundingClientRect().top
+            );
+        }
 
         if (top === 0) {
             marginBottom = top = winHeight * topRate * topRate;
