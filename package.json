@@ -1,6 +1,6 @@
 {
   "name": "blear.ui.window",
-  "version": "1.1.26",
+  "version": "1.1.27",
   "description": "窗口弹出框 UI",
   "scripts": {
     "live": "browser-sync start --config bs-config.js"

@@ -367,6 +367,14 @@ var Window = UI.extend({
     },
 
     /**
+     * 获取 outer element
+     * @returns {HTMLDivElement}
+     */
+    getOuterEl: function () {
+        return this[_outerEl];
+    },
+
+    /**
      * 获取 window element
      * @returns {HTMLDivElement}
      */
