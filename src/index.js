@@ -180,8 +180,8 @@ var Window = UI.extend({
         windowEl.id = namespace + '-' + uiIndex++;
         attribute.style(windowEl, 'position', options.position);
         the[_state] = WINDOW_STATE_HIDDEN;
-        // modification.insert(windowEl);
-        options.render.call(the, windowEl, options);
+        the[_outerEl] = options.render.call(the, windowEl, options) || the[_windowEl];
+        modification.remove(the[_outerEl]);
     },
 
     /**
@@ -225,8 +225,8 @@ var Window = UI.extend({
         };
 
         the[_state] = WINDOW_STATE_OPENING;
+        modification.insert(the[_outerEl]);
         // 设置显示，便于计算尺寸
-        modification.insert(the[_windowEl]);
         attribute.style(the[_windowEl], {
             display: 'block',
             visibility: 'hidden'
@@ -240,7 +240,7 @@ var Window = UI.extend({
             });
             the[_state] = WINDOW_STATE_HIDDEN;
             callback.call(the);
-            modification.remove(the[_windowEl]);
+            modification.remove(the[_outerEl]);
             return the;
         }
 
@@ -356,7 +356,7 @@ var Window = UI.extend({
                 });
                 the[_state] = WINDOW_STATE_HIDDEN;
                 the.emit('afterClose');
-                modification.remove(the[_windowEl]);
+                modification.remove(the[_outerEl]);
                 callback.call(the);
             });
         }, function () {
@@ -434,7 +434,7 @@ var Window = UI.extend({
 
         fun.until(function () {
             the[_state] = WINDOW_STATE_DESTROYED;
-            modification.remove(the[_windowEl]);
+            modification.remove(the[_outerEl]);
             Window.invoke('destroy', the);
             callback.call(the);
         }, function () {
@@ -443,14 +443,16 @@ var Window = UI.extend({
         });
     }
 });
-var _windowEl = Window.sole();
-var _focusEl = Window.sole();
-var _containerEl = Window.sole();
-var _options = Window.sole();
-var _getWillDisplayPosition = Window.sole();
+var sole = Window.sole;
+var _windowEl = sole();
+var _focusEl = sole();
+var _containerEl = sole();
+var _options = sole();
+var _getWillDisplayPosition = sole();
 // window 状态：
-var _state = Window.sole();
-var _zIndex = Window.sole();
+var _state = sole();
+var _zIndex = sole();
+var _outerEl = sole();
 var pro = Window.prototype;
 
 
