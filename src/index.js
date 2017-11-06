@@ -505,16 +505,6 @@ pro[_getWillDisplayPosition] = function (ext) {
     // 上位移比例 && 自动上位移
     if (topRate !== AUTO_STR && top === AUTO_STR) {
         top = (winHeight - theHeight) * topRate;
-
-        // 非固定定位时计算偏移量
-        // if (options.position !== 'fixed') {
-            // 弹出框加上滚动区域的偏移量
-            top += Math.max(
-                -layout.clientTop(htmlEl),
-                -layout.clientTop(bodyEl)
-            );
-        // }
-
         top = Math.max(top, 0);
 
         if (top === 0) {
