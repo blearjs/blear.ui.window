@@ -518,7 +518,7 @@ pro[_getWillDisplayPosition] = function (ext) {
         top = Math.max(top, 0);
 
         if (top === 0) {
-            marginBottom = top = winHeight * topRate * topRate;
+            top = winHeight * topRate * topRate;
         }
     }
 
@@ -527,8 +527,8 @@ pro[_getWillDisplayPosition] = function (ext) {
         left: left,
         width: theWidth,
         height: theHeight,
-        marginRight: marginRight,
-        marginBottom: marginBottom,
+        // marginRight: marginRight,
+        // marginBottom: marginBottom,
         // 不能设置最小、最大尺寸，在 IOS 下浏览器弹性滚动之后，浏览器的最大尺寸会发生变化
         // 同时会导致，ui.window 里的定位元素出现混乱
         minWidth: '',
