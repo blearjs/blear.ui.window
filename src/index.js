@@ -51,7 +51,7 @@ var defaults = {
      * 定位
      * @type String
      */
-    position: 'fixed',
+    // position: 'fixed',
 
     // /**
     //  * 自动层级管理
@@ -178,7 +178,7 @@ var Window = UI.extend({
         the[_focusEl] = selector.query('.' + namespace + '-focus', windowEl)[0];
         the[_containerEl] = selector.query('.' + namespace + '-container', windowEl)[0];
         windowEl.id = namespace + '-' + uiIndex++;
-        attribute.style(windowEl, 'position', options.position);
+        // attribute.style(windowEl, 'position', options.position);
         the[_state] = WINDOW_STATE_HIDDEN;
         the[_outerEl] = options.render.call(the, windowEl, options) || the[_windowEl];
         modification.remove(the[_outerEl]);
@@ -507,13 +507,13 @@ pro[_getWillDisplayPosition] = function (ext) {
         top = (winHeight - theHeight) * topRate;
 
         // 非固定定位时计算偏移量
-        if (options.position !== 'fixed') {
+        // if (options.position !== 'fixed') {
             // 弹出框加上滚动区域的偏移量
             top += Math.max(
                 -layout.clientTop(htmlEl),
                 -layout.clientTop(bodyEl)
             );
-        }
+        // }
 
         top = Math.max(top, 0);
 
