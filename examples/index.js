@@ -3,7 +3,9 @@
 
 var Window = require('../src/index');
 
-var win = new Window();
+var win = new Window({
+    position: 'absolute'
+});
 
 win.setHTML('<div style="background: #fcc;height: 100%; min-height: 300px;"></div>');
 

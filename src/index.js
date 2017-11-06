@@ -8,9 +8,9 @@
 'use strict';
 
 var object = require('blear.utils.object');
-var string = require('blear.utils.string');
+// var string = require('blear.utils.string');
 var typeis = require('blear.utils.typeis');
-var number = require('blear.utils.number');
+// var number = require('blear.utils.number');
 var fun = require('blear.utils.function');
 var time = require('blear.utils.time');
 var access = require('blear.utils.access');
@@ -18,7 +18,7 @@ var selector = require('blear.core.selector');
 var attribute = require('blear.core.attribute');
 var layout = require('blear.core.layout');
 var modification = require('blear.core.modification');
-var event = require('blear.core.event');
+// var event = require('blear.core.event');
 var UI = require('blear.ui');
 var template = require('./template.html', 'html');
 
@@ -505,16 +505,17 @@ pro[_getWillDisplayPosition] = function (ext) {
     // 上位移比例 && 自动上位移
     if (topRate !== AUTO_STR && top === AUTO_STR) {
         top = (winHeight - theHeight) * topRate;
-        top = Math.max(top, 0);
 
         // 非固定定位时计算偏移量
         if (options.position !== 'fixed') {
             // 弹出框加上滚动区域的偏移量
             top += Math.max(
-                -htmlEl.getBoundingClientRect().top,
-                -bodyEl.getBoundingClientRect().top
+                -layout.clientTop(htmlEl),
+                -layout.clientTop(bodyEl)
             );
         }
+
+        top = Math.max(top, 0);
 
         if (top === 0) {
             marginBottom = top = winHeight * topRate * topRate;
