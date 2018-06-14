@@ -355,8 +355,8 @@ var Window = UI.extend({
                     display: 'none'
                 });
                 the[_state] = WINDOW_STATE_HIDDEN;
-                the.emit('afterClose');
                 modification.remove(the[_outerEl]);
+                the.emit('afterClose');
                 callback.call(the);
             });
         }, function () {
