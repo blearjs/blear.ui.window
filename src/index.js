@@ -474,6 +474,9 @@ pro[_getWillDisplayPosition] = function (ext) {
     var options = the[_options];
 
     attribute.style(the[_windowEl], {
+        // 去除一切变换与过渡，保证位置计算准确
+        transform: '',
+        transition: '',
         width: options.width,
         height: options.height,
         minWidth: options.minWidth,
