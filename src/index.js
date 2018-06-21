@@ -2,6 +2,7 @@
  * window
  * @author ydr.me
  * @create 2016-04-20 14:49
+ * @update 2018年06月21日16:22:35
  */
 
 
@@ -489,27 +490,17 @@ pro[_getWillDisplayPosition] = function (ext) {
     var topRate = options.topRate;
     var left = options.left;
     var top = options.top;
-    var marginRight = 0;
-    var marginBottom = 0;
 
     // 左位移比例 && 自动左位移
     if (leftRate !== AUTO_STR && left === AUTO_STR) {
         left = (winWidth - theWidth) * leftRate;
         left = Math.max(left, 0);
-
-        if (left === 0) {
-            marginRight = top = winWidth * leftRate * leftRate;
-        }
     }
 
     // 上位移比例 && 自动上位移
     if (topRate !== AUTO_STR && top === AUTO_STR) {
         top = (winHeight - theHeight) * topRate;
         top = Math.max(top, 0);
-
-        if (top === 0) {
-            top = winHeight * topRate * topRate;
-        }
     }
 
     return object.assign({
