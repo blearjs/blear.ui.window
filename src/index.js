@@ -154,6 +154,12 @@ var defaults = {
     closeAnimation: null,
 
     /**
+     * 自动聚焦
+     * @type boolean
+     */
+    autoFocus: true,
+
+    /**
      * 自定义渲染器
      * @param windowEl
      * @param options
@@ -251,7 +257,11 @@ var Window = UI.extend({
         attribute.style(the[_windowEl], pos);
         options.openAnimation.call(the, pos, function () {
             the[_state] = WINDOW_STATE_VISIBLE;
-            the[_focusEl].focus();
+
+            if (options.autoFocus) {
+                the[_focusEl].focus();
+            }
+
             the.emit('afterOpen');
             callback.call(the);
         });
@@ -349,7 +359,11 @@ var Window = UI.extend({
             }
 
             the[_state] = WINDOW_STATE_CLOSING;
-            the[_focusEl].blur();
+
+            if (options.autoFocus) {
+                the[_focusEl].blur();
+            }
+
             the.emit('close', pos);
             options.closeAnimation.call(the, pos, function () {
                 attribute.style(the[_windowEl], {
